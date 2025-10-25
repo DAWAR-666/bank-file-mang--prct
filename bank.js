@@ -2,9 +2,6 @@ const bankData='https://gist.githubusercontent.com/yash2324/60db76164a7bf5e8e642
 async function getData() {
     let file=await fetch(bankData)
     let data=file.text();
-    
-    console.log(data);
-
     return data;
 }
 async function parsing(params) {
@@ -23,5 +20,10 @@ async function parsing(params) {
         }
         arr.push(obj);
     }
-    console.log(arr)
+    return arr;
+}
+async function sorting() {
+    let arr=await parsing();
+    arr.sort((a,b)=>new Date(b.Date)-new Date(a.Date))
+    console.log(arr);   
 }
