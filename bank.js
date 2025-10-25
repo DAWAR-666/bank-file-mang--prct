@@ -24,6 +24,36 @@ async function parsing(params) {
 }
 async function sorting() {
     let arr=await parsing();
-    arr.sort((a,b)=>new Date(b.Date)-new Date(a.Date))
-    console.log(arr);   
+    arr.sort((a,b)=>new Date(b.Date)-new Date(a.Date))  
+    return arr; 
+}
+async function summary() {
+    let arr=await sorting();
+    let sum_list={}
+    arr.forEach((element)=>{
+        if(element.AccountHolder in sum_list){
+            if(element.Type==='Credit'){
+                TotalCredit+=element.Amount;
+            }
+            else if(element.Type==='Debit'){
+                TotalDebit+=element.Amount;
+            }
+        }
+        else{
+            if(element.Type==='Credit'){
+                sum_list.element.AccountHolder={
+                    TotalCredit:element.Amount,
+                    TotalDebit:0
+                };
+            }
+            else if(element.Type==='Debit'){
+                sum_list.element.AccountHolder={
+                    TotalCredit:0,
+                    TotalDebit:element.Amount
+                }
+            }
+            
+        }
+    })
+    console.log(sum_list)
 }
