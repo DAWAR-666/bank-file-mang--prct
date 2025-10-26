@@ -33,7 +33,7 @@ async function summary() {
     let sum_list={}
     arr.forEach((element)=>{
         if(element.AccountHolder in sum_list){
-            if(element.Remarks.includes("Salary")){
+            if(element.Remarks.toLowerCase().includes("Salary")){
                 sum_list[element.AccountHolder].SalaryTransactions.push(element.TransactionID);
             }
             sum_list[element.AccountHolder].LargestTransaction=sum_list[element.AccountHolder].LargestTransaction<element.Amount ? element.Amount : sum_list[element.AccountHolder].LargestTransaction;
@@ -49,28 +49,64 @@ async function summary() {
                 sum_list[element.AccountHolder]={
                     TotalCredit:element.Amount,
                     TotalDebit:0,
-                    LargestTransaction:0,
+                    LargestTransaction:element.Amount,
                     SalaryTransactions:[]
                 };
-                if(element.Remarks.includes("Salary")){
-                sum_list[element.AccountHolder].SalaryTransactions.push(element.TransactionID);
-            }
+                if(element.Remarks.toLowerCase().includes("Salary")){
+                    sum_list[element.AccountHolder].SalaryTransactions.push(element.TransactionID);
+                }
+                            
             }
             else if(element.Type==='Debit'){
                 sum_list[element.AccountHolder]={
                     TotalCredit:0,
                     TotalDebit:element.Amount,
-                    LargestTransaction:0,
+                    LargestTransaction:element.Amount,
                     SalaryTransactions:[]
                 };
-                if(element.Remarks.includes("Salary")){
-                sum_list[element.AccountHolder].SalaryTransactions.push(element.TransactionID);
-            }
+                if(element.Remarks.toLowerCase().includes("Salary")){
+                    sum_list[element.AccountHolder].SalaryTransactions.push(element.TransactionID);
+                }
+                
+            
             }
             
         }
         
     })
-    console.log(sum_list)
-    console.log(Object.keys(sum_list))
+    return sum_list;
 }
+async function converter() {
+    let sum_list=await summary()
+    let sum_arr=[]
+    Object.keys(sum_list).forEach((element)=>{
+        let obj={
+            AccountHolder:element,
+            TotalCredit:sum_list[element].TotalCredit,
+            TotalDebit:sum_list[element].TotalDebit,
+            LargestTransaction:sum_list[element].LargestTransaction,
+            SalaryTransactions:sum_list[element].SalaryTransactions
+        }
+        sum_arr.push(obj);
+    })
+    return sum_arr;
+}
+async function fileWrite() {
+    const sum_arr=await converter();
+    const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+    const csvWriter = createCsvWriter({
+        path: 'bank_summary.csv',
+        header: [
+            {id: 'AccountHolder', title: 'AccountHolder'},
+            {id: 'TotalCredit', title: 'TotalCredit'},
+            {id: 'TotalDebit', title: 'TotalDebit'},
+            {id: 'LargestTransaction', title: 'LargestTransaction'},
+            {id: 'SalaryTransactions', title: 'SalaryTransactions'},
+        ]
+    });
+    csvWriter
+    .writeRecords(sum_arr)
+    .then(()=> console.log('The CSV file was written successfully'));
+        
+}
+fileWrite()
