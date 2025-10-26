@@ -27,11 +27,15 @@ async function sorting() {
     arr.sort((a,b)=>new Date(a.Date)-new Date(b.Date))  
     return arr; 
 }
+
 async function summary() {
     let arr=await sorting();
     let sum_list={}
     arr.forEach((element)=>{
         if(element.AccountHolder in sum_list){
+            if(element.Remarks.includes("Salary")){
+                sum_list[element.AccountHolder].SalaryTransactions.push(element.TransactionID);
+            }
             sum_list[element.AccountHolder].LargestTransaction=sum_list[element.AccountHolder].LargestTransaction<element.Amount ? element.Amount : sum_list[element.AccountHolder].LargestTransaction;
             if(element.Type==='Credit'){
                 sum_list[element.AccountHolder].TotalCredit+=element.Amount;
@@ -48,6 +52,9 @@ async function summary() {
                     LargestTransaction:0,
                     SalaryTransactions:[]
                 };
+                if(element.Remarks.includes("Salary")){
+                sum_list[element.AccountHolder].SalaryTransactions.push(element.TransactionID);
+            }
             }
             else if(element.Type==='Debit'){
                 sum_list[element.AccountHolder]={
@@ -56,9 +63,13 @@ async function summary() {
                     LargestTransaction:0,
                     SalaryTransactions:[]
                 };
+                if(element.Remarks.includes("Salary")){
+                sum_list[element.AccountHolder].SalaryTransactions.push(element.TransactionID);
+            }
             }
             
         }
+        
     })
     console.log(sum_list)
     console.log(Object.keys(sum_list))
