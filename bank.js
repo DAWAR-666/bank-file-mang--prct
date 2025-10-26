@@ -93,20 +93,21 @@ async function converter() {
 }
 async function fileWrite() {
     const sum_arr=await converter();
-    const createCsvWriter = require('csv-writer').createObjectCsvWriter;
-    const csvWriter = createCsvWriter({
-        path: 'bank_summary.csv',
-        header: [
-            {id: 'AccountHolder', title: 'AccountHolder'},
-            {id: 'TotalCredit', title: 'TotalCredit'},
-            {id: 'TotalDebit', title: 'TotalDebit'},
-            {id: 'LargestTransaction', title: 'LargestTransaction'},
-            {id: 'SalaryTransactions', title: 'SalaryTransactions'},
-        ]
-    });
-    csvWriter
-    .writeRecords(sum_arr)
-    .then(()=> console.log('The CSV file was written successfully'));
+    const createCsvWriter = require("fs");
+    // const csvWriter = createCsvWriter({
+    //     path: 'bank_summary.csv',
+    //     header: [
+    //         {id: 'AccountHolder', title: 'AccountHolder'},
+    //         {id: 'TotalCredit', title: 'TotalCredit'},
+    //         {id: 'TotalDebit', title: 'TotalDebit'},
+    //         {id: 'LargestTransaction', title: 'LargestTransaction'},
+    //         {id: 'SalaryTransactions', title: 'SalaryTransactions'},
+    //     ]
+    // });
+    // csvWriter
+    // .writeRecords(sum_arr)
+    // .then(()=> console.log('The CSV file was written successfully'));
         
+    createCsvWriter.writeFileSync("./bank_summary.csv",sum_arr);
 }
 fileWrite()
