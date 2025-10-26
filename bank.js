@@ -33,7 +33,7 @@ async function summary() {
     let sum_list={}
     arr.forEach((element)=>{
         if(element.AccountHolder in sum_list){
-            if(element.Remarks.toLowerCase().includes("Salary")){
+            if(element.Remarks.toLowerCase().includes("salary")){
                 sum_list[element.AccountHolder].SalaryTransactions.push(element.TransactionID);
             }
             sum_list[element.AccountHolder].LargestTransaction=sum_list[element.AccountHolder].LargestTransaction<element.Amount ? element.Amount : sum_list[element.AccountHolder].LargestTransaction;
@@ -52,7 +52,7 @@ async function summary() {
                     LargestTransaction:element.Amount,
                     SalaryTransactions:[]
                 };
-                if(element.Remarks.toLowerCase().includes("Salary")){
+                if(element.Remarks.toLowerCase().includes("salary")){
                     sum_list[element.AccountHolder].SalaryTransactions.push(element.TransactionID);
                 }
                             
@@ -64,7 +64,7 @@ async function summary() {
                     LargestTransaction:element.Amount,
                     SalaryTransactions:[]
                 };
-                if(element.Remarks.toLowerCase().includes("Salary")){
+                if(element.Remarks.toLowerCase().includes("salary")){
                     sum_list[element.AccountHolder].SalaryTransactions.push(element.TransactionID);
                 }
                 
@@ -85,7 +85,7 @@ async function converter() {
             TotalCredit:sum_list[element].TotalCredit,
             TotalDebit:sum_list[element].TotalDebit,
             LargestTransaction:sum_list[element].LargestTransaction,
-            SalaryTransactions:sum_list[element].SalaryTransactions
+            SalaryTransactions:sum_list[element].SalaryTransactions.join(';')
         }
         sum_arr.push(obj);
     })
@@ -93,21 +93,18 @@ async function converter() {
 }
 async function fileWrite() {
     const sum_arr=await converter();
-    const createCsvWriter = require("fs");
-    // const csvWriter = createCsvWriter({
-    //     path: 'bank_summary.csv',
-    //     header: [
-    //         {id: 'AccountHolder', title: 'AccountHolder'},
-    //         {id: 'TotalCredit', title: 'TotalCredit'},
-    //         {id: 'TotalDebit', title: 'TotalDebit'},
-    //         {id: 'LargestTransaction', title: 'LargestTransaction'},
-    //         {id: 'SalaryTransactions', title: 'SalaryTransactions'},
-    //     ]
-    // });
-    // csvWriter
-    // .writeRecords(sum_arr)
-    // .then(()=> console.log('The CSV file was written successfully'));
-        
-    createCsvWriter.writeFileSync("./bank_summary.csv",sum_arr);
+    const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+    const csvWriter = createCsvWriter({
+        path: 'bank_summary.csv',
+        header: [
+            {id: 'AccountHolder', title: 'AccountHolder'},
+            {id: 'TotalCredit', title: 'TotalCredit'},
+            {id: 'TotalDebit', title: 'TotalDebit'},
+            {id: 'LargestTransaction', title: 'LargestTransaction'},
+            {id: 'SalaryTransactions', title: 'SalaryTransactions'},
+        ]
+    });
+    csvWriter
+    .writeRecords(sum_arr)
 }
 fileWrite()
