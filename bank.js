@@ -1,7 +1,8 @@
-const bankData='https://gist.githubusercontent.com/yash2324/60db76164a7bf5e8e6426c89bd84f265/raw/4f0728dd61f577bbc65ce2c3c6c8466429a77c3d/fe02_bank.csv'
+const bankData='bank_data.csv'
+const fs=require('fs').promises;
 async function getData() {
-    let file=await fetch(bankData)
-    let data=await file.text();
+    
+    let data=await fs.readFile(bankData, 'utf8');
     return data;
 }
 async function parsing(params) {
@@ -92,19 +93,22 @@ async function converter() {
     return sum_arr;
 }
 async function fileWrite() {
-    const sum_arr=await converter();
-    const createCsvWriter = require('csv-writer').createObjectCsvWriter;
-    const csvWriter = createCsvWriter({
-        path: 'bank_summary.csv',
-        header: [
-            {id: 'AccountHolder', title: 'AccountHolder'},
-            {id: 'TotalCredit', title: 'TotalCredit'},
-            {id: 'TotalDebit', title: 'TotalDebit'},
-            {id: 'LargestTransaction', title: 'LargestTransaction'},
-            {id: 'SalaryTransactions', title: 'SalaryTransactions'},
+    const sum_arr=await converter();        
+    const headers= [
+            'AccountHolder',
+            'TotalCredit',
+            'TotalDebit',
+            'LargestTransaction',
+            'SalaryTransactions'
         ]
+    const headerRow = headers.join(',');
+
+    const dataRows = sum_arr.map(record => {
+        return headers.map(header => record[header]).join(',');
     });
-    csvWriter
-    .writeRecords(sum_arr)
+
+    const csvContent = [headerRow, ...dataRows].join('\n');
+
+    fs.writeFile("./bank_summary.csv", csvContent);
 }
 fileWrite()
